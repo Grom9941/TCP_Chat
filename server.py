@@ -4,6 +4,7 @@ import signal
 import sys
 import os
 
+TIME_LENGTH = 5
 HEADER_LENGTH = 30
 ENCODING = 'utf-8'
 
@@ -28,10 +29,10 @@ def handler(signum, frame):
 def receive_message(client_socket, is_time):
     try:    
         if is_time:
-            time = client_socket.recv(HEADER_LENGTH)
+            time = client_socket.recv(TIME_LENGTH)
 
         message_header = client_socket.recv(HEADER_LENGTH)
-        # print('message_header: {}'.format(message_header))
+        print('message_header: {}'.format(message_header))
             
         if not len(message_header):
             return False
@@ -64,7 +65,6 @@ while True:
     signal.signal(signal.SIGINT, handler)
 
     read_sockets, _, exception_sockets = select.select(sockets_list, [], sockets_list)
-
     for notified_socket in read_sockets:
         if notified_socket == server_socket:
             client_socket, client_address = server_socket.accept()

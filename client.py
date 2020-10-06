@@ -5,6 +5,7 @@ import sys
 import time
 from datetime import datetime
 
+TIME_LENGTH = 5
 HEADER_LENGTH = 30
 ENCODING = 'utf-8'
 
@@ -29,13 +30,13 @@ while True:
     if message:
         message = message.encode(ENCODING)
         message_header = f"{len(message):<{HEADER_LENGTH}}".encode(ENCODING)
-        time = f"{time:<{HEADER_LENGTH}}".encode(ENCODING)
+        time = f"{time:<{TIME_LENGTH}}".encode(ENCODING)
         client_socket.send(time + message_header + message)
 
     try:
         while True:
 
-            time = client_socket.recv(HEADER_LENGTH).decode(ENCODING).strip()
+            time = client_socket.recv(TIME_LENGTH).decode(ENCODING).strip()
             # print('time: {}'.format(time))
             
             username_header = client_socket.recv(HEADER_LENGTH)
