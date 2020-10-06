@@ -17,7 +17,7 @@ $python client.py && server.py
 
 1. **Create** a socket.
 2. **Bind** to an address.
-3. **Listen** on a port, and wait for a connection to be established.
+3. **Listen** on a port and wait for a connection to be established.
 4. **Accept** the connection from a client.
 5. **Send/Recv** - the same way we read and write for a file.
 ---
@@ -35,7 +35,7 @@ $python client.py && server.py
 
 ## Message format
 
-Message fromat which server and clients use to communicate.
+Message format that the server and clients use to communicate.
 ``` 
  square_bracket      time       square_bracket      author      greater_than      message
 |--- 1 byte ---|--- 5 bytes ---|--- 1 byte ---|--- n bytes ---|--- 1 byte ---|--- m bytes ---|
