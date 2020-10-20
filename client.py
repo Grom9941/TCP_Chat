@@ -11,19 +11,22 @@ ENCODING = 'utf-8'
 
 HOSTNAME = socket.gethostname()
 PORT = 1024
+MY_FORMAT = u'%H:%M'
 
 my_username = input("Username: ")
 client_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 client_socket.connect((HOSTNAME, PORT))
 client_socket.setblocking(False)
 
+time = datetime.now().strftime(MY_FORMAT)
 username = my_username.encode(ENCODING)
 username_header = f"{len(username):<{HEADER_LENGTH}}".encode(ENCODING)
-client_socket.send(username_header + username)
+time = f"{time:<{TIME_LENGTH}}".encode(ENCODING)
+client_socket.send(time + username_header + username)
 
 while True:
-    my_format = u'%H:%M'
-    time = datetime.now().strftime(my_format)
+    
+    time = datetime.now().strftime(MY_FORMAT)
 
     message = input(f'[{f"{time}"}] {my_username} > ')
 

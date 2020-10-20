@@ -13,23 +13,25 @@ PORT = 1024
 MAX_CONNECTIONS = 50
 EXIT = 0
 PID = os.getpid()
+MESSAGE_SEND = False
+
 print('My PID is:', PID)
 
 def handler(signum, frame):
     print ('Signal handler called with signal', signum)
-    try:
-        sys.exit(EXIT)
-    except SystemExit as e:
-        if e.code != EXIT:
-            print('Server shuted down')
-            raise  
+    if MESSAGE_SEND:
+        try:
+            sys.exit(EXIT)
+        except SystemExit as e:
+            if e.code != EXIT:
+                print('Server shuted down')
+                raise  
 
-    raise IOError("Couldn't open device!")
+        raise IOError("Couldn't shut down service!")
 
-def receive_message(client_socket, is_time):
+def receive_message(client_socket):
     try:    
-        if is_time:
-            time = client_socket.recv(TIME_LENGTH)
+        time = client_socket.recv(TIME_LENGTH)
 
         message_header = client_socket.recv(HEADER_LENGTH)
         print('message_header: {}'.format(message_header))
@@ -43,11 +45,7 @@ def receive_message(client_socket, is_time):
 
         data = client_socket.recv(message_length).strip()
         # print('data: {}'.format(data))
-
-        if is_time:
-            return { "time": time, "header": message_header, "data": data}
-        else:
-            return {"header": message_header, "data": data}
+        return { "time": time, "header": message_header, "data": data}
 
     except:
         return False
@@ -62,6 +60,7 @@ sockets_list = [server_socket]
 clients = {}
 
 while True:
+    MESSAGE_SEND = False
     signal.signal(signal.SIGINT, handler)
 
     read_sockets, _, exception_sockets = select.select(sockets_list, [], sockets_list)
@@ -69,7 +68,7 @@ while True:
         if notified_socket == server_socket:
             client_socket, client_address = server_socket.accept()
 
-            user = receive_message(client_socket, False)
+            user = receive_message(client_socket)
             if user is False:
                 continue
 
@@ -80,7 +79,7 @@ while True:
             print('Accepted new connection from {}:{}, username: {}'.format(*client_address, user['data'].decode(ENCODING)))
 
         else:
-            message = receive_message(notified_socket, True)
+            message = receive_message(notified_socket)
 
             if message is False:
                 print(f"Closed connection from {clients[notified_socket]['data'].decode(ENCODING)}")
@@ -99,6 +98,7 @@ while True:
                     # print(message['header']) 
                     # print(message['data'])
                     client_socket.send(message['time'] + user['header'] + user['data'] + message['header'] + message['data'])
+                    MESSAGE_SEND = True
 
     for notified_socket in exception_sockets:
         sockets_list.remove(notified_socket)
